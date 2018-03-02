@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "EditorWindow",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "Aditya Gune",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "EditorWindow",
+			"Type": "Developer",
+			"LoadingPhase": "Default"
+		}
+	]
+}

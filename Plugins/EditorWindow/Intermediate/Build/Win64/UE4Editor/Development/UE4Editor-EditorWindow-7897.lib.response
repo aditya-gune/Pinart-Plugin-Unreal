@@ -1,0 +1,14 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-EditorWindow-7897.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"D:\Program Files\Epic Games\UE_4.18\Engine\Intermediate\Build\Win64\UE4Editor\Development\UnrealEd\SharedPCH.UnrealEd.h.obj"
+"D:\Aditya\Documents\Unreal Projects\MyProject\Plugins\EditorWindow\Intermediate\Build\Win64\UE4Editor\Development\EditorWindow\Module.EditorWindow.cpp.obj"
+"D:\Aditya\Documents\Unreal Projects\MyProject\Plugins\EditorWindow\Intermediate\Build\Win64\UE4Editor\Development\EditorWindow\Module.EditorWindow.gen.cpp.obj"
+"D:\Program Files\Epic Games\UE_4.18\Engine\Intermediate\Build\Win64\UE4Editor\Development\EditorWindow\PCLaunch.rc.res"
+"D:\Program Files\Epic Games\UE_4.18\Engine\Intermediate\Build\Win64\UE4Editor\Development\ModuleVersionResource.rc.inl.res"
+/OUT:"D:\Aditya\Documents\Unreal Projects\MyProject\Plugins\EditorWindow\Intermediate\Build\Win64\UE4Editor\Development\UE4Editor-EditorWindow-7897.lib"

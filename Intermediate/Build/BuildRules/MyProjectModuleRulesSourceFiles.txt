@@ -1,0 +1,4 @@
+D:\Aditya\Documents\Unreal Projects\MyProject\Source\MyProject\MyProject.Build.cs
+D:\Aditya\Documents\Unreal Projects\MyProject\Plugins\EditorWindow\Source\EditorWindow\EditorWindow.Build.cs
+D:\Aditya\Documents\Unreal Projects\MyProject\Source\MyProject.Target.cs
+D:\Aditya\Documents\Unreal Projects\MyProject\Source\MyProjectEditor.Target.cs

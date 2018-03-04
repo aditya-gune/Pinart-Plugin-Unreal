@@ -30,24 +30,12 @@ AMyActor::AMyActor()
 void AMyActor::BeginPlay()
 {
 	Super::BeginPlay();
-	UWorld* const world = GetWorld();
+	
+}
 
-	if (world)
-	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.Instigator = Instigator;
-
-		// Get Actor Location to Spawn
-		FVector SpawnLocation = GetActorLocation();
-
-		//Set a rotation
-		FRotator SpawnRotation = GetActorRotation();
-
-		//Spawn the actor 
-		world->SpawnActor<AMyActor>(SpawnLocation, SpawnRotation, SpawnParams);
-	}
-
+void AMyActor::Spawn(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParams)
+{
+	GetWorld()->SpawnActor<AMyActor>(SpawnLocation, SpawnRotation, SpawnParams);
 }
 
 // Called every frame

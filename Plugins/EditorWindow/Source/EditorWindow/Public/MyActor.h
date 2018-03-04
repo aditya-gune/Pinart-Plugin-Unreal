@@ -43,5 +43,8 @@ public:
 	FVector location;	//holds location of the pin
 	FVector oldLoc;		//holds location of previous pin
 	int counter;		//holds counter of pins so we know when to stop
+	bool overlap = false;
 	
+	void Spawn(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParams);
+
 };

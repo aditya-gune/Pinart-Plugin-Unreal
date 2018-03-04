@@ -3,13 +3,7 @@
 #include "EditorWindow.h"
 #include "EditorWindowStyle.h"
 #include "EditorWindowCommands.h"
-#include "LevelEditor.h"
-#include "Widgets/Docking/SDockTab.h"
-#include "Widgets/Layout/SBox.h"
-#include "Widgets/Layout/SScrollBox.h"
-#include "Widgets/Layout/SScrollBar.h"
-#include "Widgets/Text/STextBlock.h"
-#include "Framework/MultiBox/MultiBoxBuilder.h"
+
 
 static const FName EditorWindowTabName("EditorWindow");
 
@@ -114,10 +108,16 @@ TSharedRef<SDockTab> FEditorWindowModule::OnSpawnPluginTab(const FSpawnTabArgs& 
 					.OnTextChanged_Raw(this, &FEditorWindowModule::GetNameFromTextInput)
 
 				]
-			]
+			]	
+
 		]
+		
+		
 		];
+	
 }
+
+
 
 void FEditorWindowModule::PluginButtonClicked()
 {
@@ -137,8 +137,73 @@ void FEditorWindowModule::AddToolbarExtension(FToolBarBuilder& Builder)
 void FEditorWindowModule::GetNameFromTextInput(const FText & Text) {
 	FText TextForString = Text;
 	FString str = TextForString.ToString();
+	
+	//update this->value with the string
 	Value = str;
+	FString PathToLoad = "/Game/Textures/YourStructureHere";
+	LoadImageFromPath(Value);
+
 }
+
+//Sample file:
+//D:\Aditya\Pictures\20170916_175749.jpg
+int FEditorWindowModule::LoadImageFromPath(const FString& Path)
+{
+	// Represents the entire file in memory.
+	TArray<uint8> RawFileData;
+
+	if (FFileHelper::LoadFileToArray(RawFileData, *Path))
+	{
+		IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+		
+		IImageWrapperPtr ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+		if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
+		{
+			const TArray<uint8>* UncompressedBGRA = NULL;
+			if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
+			{
+				// Create the UTexture for rendering
+				UTexture2D* MyTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
+
+				// Fill in the source data from the file
+				uint8* TextureData = (uint8*)MyTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+				FMemory::Memcpy(TextureData, UncompressedBGRA->GetData(), UncompressedBGRA->Num());
+				MyTexture->PlatformData->Mips[0].BulkData.Unlock();
+
+				// Update the rendering resource from data.
+				MyTexture->UpdateResource();
+				imageTexture = MyTexture;
+			}
+		}
+	}
+	return 0;
+}
+
+void FEditorWindowModule::SpawnActor()
+{
+	FActorSpawnParameters SpawnParams;
+
+	// Get Actor Location to Spawn
+	FVector SpawnLocation = FVector(0.0f, 0.0f, 0.0f);
+
+	//Set a rotation
+	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	//Spawn the actor 
+	AMyActor pin;
+	pin.Spawn(SpawnLocation, SpawnRotation, SpawnParams);
+
+}
+
+UTexture2D* FEditorWindowModule::LoadTextureFromPath(const FString& Path)
+{
+	if (Path.IsEmpty()) return NULL;
+
+	return Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *(Path)));
+}
+
+
+
 
 #undef LOCTEXT_NAMESPACE
 	

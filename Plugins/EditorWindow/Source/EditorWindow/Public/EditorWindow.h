@@ -1,9 +1,20 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
-
+#include "LevelEditor.h"
+#include "Widgets/Docking/SDockTab.h"
+#include "Widgets/Layout/SBox.h"
+#include "Widgets/Layout/SScrollBox.h"
+#include "Widgets/Layout/SScrollBar.h"
+#include "Widgets/Text/STextBlock.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "Runtime/ImageWrapper/Public/IImageWrapperModule.h"
+#include "Runtime/ImageWrapper/Public/IImageWrapper.h"
+#include "Engine.h"
+#include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
+#include "MyActor.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -23,12 +34,17 @@ private:
 
 	void AddToolbarExtension(FToolBarBuilder& Builder);
 	void GetNameFromTextInput(const FText & Text);
+	int LoadImageFromPath(const FString & Path);
+	void SpawnActor();
+	UTexture2D * LoadTextureFromPath(const FString & Path);
 	void AddMenuExtension(FMenuBuilder& Builder);
 
 	FString Value;	//holds string values from window input
-	FILE* fp;		//holds file pointer for image
+	UTexture2D* imageTexture;	//holds texture2D
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
+
+	FReply TestButtonFunction();
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;

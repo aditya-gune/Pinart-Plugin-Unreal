@@ -147,6 +147,7 @@ void FEditorWindowModule::GetNameFromTextInput(const FText & Text) {
 
 //Sample file:
 //D:\Aditya\Pictures\20170916_175749.jpg
+//D:\Aditya\Pictures\rgbtest.jpg	
 int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 {
 	UE_LOG(LogTemp, Warning, TEXT("in LoadImageFromPath"));
@@ -167,18 +168,46 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 			if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("can GetRaw"));
+
 				// Create the UTexture for rendering
 				UTexture2D* MyTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
 
 				// Fill in the source data from the file
-				uint8* TextureData = (uint8*)MyTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+				void* TextureData = MyTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 				FMemory::Memcpy(TextureData, UncompressedBGRA->GetData(), UncompressedBGRA->Num());
 				MyTexture->PlatformData->Mips[0].BulkData.Unlock();
 
 				// Update the rendering resource from data.
 				MyTexture->UpdateResource();
 				imageTexture = MyTexture;
-				GetHeightMap();
+
+				UE_LOG(LogTemp, Warning, TEXT("getting height map"));
+				FTexture2DMipMap* MyMipMap = &MyTexture->PlatformData->Mips[0];
+
+				UE_LOG(LogTemp, Warning, TEXT("MipMap: %s"), MyMipMap);
+
+				FByteBulkData* RawImageData = &MyMipMap->BulkData;
+				UE_LOG(LogTemp, Warning, TEXT("RawImageData: %s"), RawImageData);
+
+				FColor* FormatedImageData = (FColor*)(RawImageData->Lock(LOCK_READ_ONLY));
+				UE_LOG(LogTemp, Warning, TEXT("RGB:%u"), (uint8)FormatedImageData->R);
+
+				int32 PixelX = 1;
+				int32 PixelY = 1;
+				int32 TextureWidth = MyMipMap->SizeX;
+				int32 TextureHeight = MyMipMap->SizeY;
+				FColor PixelColor;
+				UE_LOG(LogTemp, Warning, TEXT("(X: %d, Y: %d)"), PixelX, PixelY);
+				UE_LOG(LogTemp, Warning, TEXT("(max X: %d, max Y: %d)"), TextureWidth, TextureHeight);
+				if (PixelX >= 0 && PixelX < TextureWidth && PixelY >= 0 && PixelY < TextureHeight)
+				{
+					PixelColor.R = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].R;
+					PixelColor.G = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].G;
+					PixelColor.B = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].B;
+					PixelColor.A = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].A;
+					UE_LOG(LogTemp, Warning, TEXT("(%d, %d) | R:%u G:%u B:%u"), PixelX, PixelY, PixelColor.R, PixelColor.G, PixelColor.B);
+				}
+			
 			}
 			else
 			{
@@ -206,22 +235,8 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 
 void FEditorWindowModule::GetHeightMap()
 {
-	UE_LOG(LogTemp, Warning, TEXT("getting height map"));
-	/*FTexture2DMipMap* MyMipMap = &imageTexture->PlatformData->Mips[0];
-	FByteBulkData* RawImageData = &MyMipMap->BulkData;
-	FColor* FormatedImageData = static_cast<FColor*>(RawImageData->Lock(LOCK_READ_ONLY));
-	uint8 PixelX = 5, PixelY = 10;
-	uint32 TextureWidth = MyMipMap->SizeX, TextureHeight = MyMipMap->SizeY;
-	FColor PixelColor;
+	
 
-	if (PixelX >= 0 && PixelX < TextureWidth && PixelY >= 0 && PixelY < TextureHeight)
-	{
-		PixelColor = FormatedImageData[PixelY * TextureWidth + PixelX];
-	}*/
-
-	FColor* FormatedImageData = static_cast<FColor*>(imageTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_ONLY));
-	imageTexture->PlatformData->Mips[0].BulkData.Unlock();
-	UE_LOG(LogTemp, Warning, TEXT("R:%f G:%f B:%f"), FormatedImageData->R, FormatedImageData->G, FormatedImageData->B);
 }
 
 void FEditorWindowModule::SpawnActor()

@@ -14,6 +14,7 @@
 #include "GameFramework/Actor.h"
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
+#include <vector>
 #include "MyActor.h"
 
 class FToolBarBuilder;
@@ -46,6 +47,8 @@ private:
 	UTexture2D* imageTexture;	//holds texture2D
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
+
+	FVector2D heights;
 
 	FReply TestButtonFunction();
 

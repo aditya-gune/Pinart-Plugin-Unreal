@@ -199,14 +199,27 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 				FColor PixelColor;
 				UE_LOG(LogTemp, Warning, TEXT("(X: %d, Y: %d)"), PixelX, PixelY);
 				UE_LOG(LogTemp, Warning, TEXT("(max X: %d, max Y: %d)"), TextureWidth, TextureHeight);
-				if (PixelX >= 0 && PixelX < TextureWidth && PixelY >= 0 && PixelY < TextureHeight)
+
+				std::vector<std::vector<uint32>> tempHeights;
+				std::vector<uint32> t;
+				for (int32 i = 0; i < TextureWidth; i++)
 				{
-					PixelColor.R = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].R;
-					PixelColor.G = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].G;
-					PixelColor.B = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].B;
-					PixelColor.A = (uint8)FormatedImageData[PixelY * TextureWidth + PixelX].A;
-					UE_LOG(LogTemp, Warning, TEXT("(%d, %d) | R:%u G:%u B:%u"), PixelX, PixelY, PixelColor.R, PixelColor.G, PixelColor.B);
+					t.clear();
+					for (int32 j = 0; j < TextureHeight; j++)
+					{
+
+						PixelColor.R = (uint8)FormatedImageData[j * TextureWidth + i].R;
+						PixelColor.G = (uint8)FormatedImageData[j * TextureWidth + i].G;
+						PixelColor.B = (uint8)FormatedImageData[j * TextureWidth + i].B;
+						PixelColor.A = (uint8)FormatedImageData[j * TextureWidth + i].A;
+						t.push_back(PixelColor.R + PixelColor.G + PixelColor.B);
+						UE_LOG(LogTemp, Warning, TEXT("(%d, %d) | R:%u G:%u B:%u"), i, j, PixelColor.R, PixelColor.G, PixelColor.B);
+					}
+					tempHeights.push_back(t);
+					
 				}
+				
+				SpawnActor();
 			
 			}
 			else
@@ -250,8 +263,9 @@ void FEditorWindowModule::SpawnActor()
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	//Spawn the actor 
-	AMyActor pin;
-	pin.Spawn(SpawnLocation, SpawnRotation, SpawnParams);
+	AMyActor* pin = NewObject<AMyActor>(AMyActor::StaticClass());
+	pin->Spawn(SpawnLocation, SpawnRotation);
+	
 
 }
 

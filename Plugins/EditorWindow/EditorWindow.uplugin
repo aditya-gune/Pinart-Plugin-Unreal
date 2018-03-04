@@ -16,7 +16,7 @@
 	"Modules": [
 		{
 			"Name": "EditorWindow",
-			"Type": "Developer",
+			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
 	]

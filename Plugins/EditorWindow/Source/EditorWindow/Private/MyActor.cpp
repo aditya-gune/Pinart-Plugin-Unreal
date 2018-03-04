@@ -33,10 +33,37 @@ void AMyActor::BeginPlay()
 	
 }
 
-void AMyActor::Spawn(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParams)
+void AMyActor::Spawn(FVector SpawnLocation, FRotator SpawnRotation)
 {
-	GetWorld()->SpawnActor<AMyActor>(SpawnLocation, SpawnRotation, SpawnParams);
+	UWorld* const World = GWorld->GetWorld();
+	if (World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld ok"));
+		World->SpawnActor<AMyActor>(SpawnLocation, SpawnRotation);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld = %s"), World);
+	}
 }
+
+AActor * AMyActor::SpawnWrapper(FVector SpawnLocation, FRotator SpawnRotation)
+{
+	UWorld* w = GEngine->GetWorld();
+
+	if (w)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld ok"));
+		w->SpawnActor<AMyActor>(SpawnLocation, SpawnRotation);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetWorld = %s"), w);
+	}
+	return nullptr;
+}
+
+
 
 // Called every frame
 void AMyActor::Tick(float DeltaTime)

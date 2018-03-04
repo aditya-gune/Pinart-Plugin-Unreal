@@ -18,7 +18,7 @@ void EmptyLinkFunctionForGeneratedCodeEditorWindow_init() {}
 		{
 			static const UE4CodeGen_Private::FPackageParams PackageParams = {
 				"/Script/EditorWindow",
-				PKG_CompiledIn | 0x00000080,
+				PKG_CompiledIn | 0x00000000,
 				0x3EE07138,
 				0x8743CFBE,
 				nullptr, 0,

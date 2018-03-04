@@ -45,6 +45,9 @@ public:
 	int counter;		//holds counter of pins so we know when to stop
 	bool overlap = false;
 	
-	void Spawn(FVector SpawnLocation, FRotator SpawnRotation, FActorSpawnParameters SpawnParams);
+	void Spawn(FVector SpawnLocation, FRotator SpawnRotation);
+
+
+	AActor * SpawnWrapper(FVector SpawnLocation, FRotator SpawnRotation);
 
 };

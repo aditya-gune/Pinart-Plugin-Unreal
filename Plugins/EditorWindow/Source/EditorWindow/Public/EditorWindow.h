@@ -35,7 +35,10 @@ private:
 	void AddToolbarExtension(FToolBarBuilder& Builder);
 	void GetNameFromTextInput(const FText & Text);
 	int LoadImageFromPath(const FString & Path);
+	void GetHeightMap();
 	void SpawnActor();
+	IImageWrapperPtr CreateImageWrapper(IImageWrapperModule& ImageWrapperModule, const FString& Path);
+
 	UTexture2D * LoadTextureFromPath(const FString & Path);
 	void AddMenuExtension(FMenuBuilder& Builder);
 

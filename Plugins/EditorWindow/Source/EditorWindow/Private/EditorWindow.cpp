@@ -149,19 +149,24 @@ void FEditorWindowModule::GetNameFromTextInput(const FText & Text) {
 //D:\Aditya\Pictures\20170916_175749.jpg
 int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 {
+	UE_LOG(LogTemp, Warning, TEXT("in LoadImageFromPath"));
 	// Represents the entire file in memory.
 	TArray<uint8> RawFileData;
 
 	if (FFileHelper::LoadFileToArray(RawFileData, *Path))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("LoadFileToArray OK"));
 		IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 		
-		IImageWrapperPtr ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+		
+		IImageWrapperPtr ImageWrapper = CreateImageWrapper(ImageWrapperModule, Path);
 		if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ImageWrapper is valid"));
 			const TArray<uint8>* UncompressedBGRA = NULL;
 			if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("can GetRaw"));
 				// Create the UTexture for rendering
 				UTexture2D* MyTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
 
@@ -173,10 +178,50 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 				// Update the rendering resource from data.
 				MyTexture->UpdateResource();
 				imageTexture = MyTexture;
+				GetHeightMap();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("GetRaw failed"));
+			}
+		}
+		else
+		{
+			if (!ImageWrapper.IsValid())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ImageWrapper not valid"));
+			}
+			if(!ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ImageWrapper->SetCompressed failed"));
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LoadFileToArray failed"));
+	}
 	return 0;
+}
+
+void FEditorWindowModule::GetHeightMap()
+{
+	UE_LOG(LogTemp, Warning, TEXT("getting height map"));
+	/*FTexture2DMipMap* MyMipMap = &imageTexture->PlatformData->Mips[0];
+	FByteBulkData* RawImageData = &MyMipMap->BulkData;
+	FColor* FormatedImageData = static_cast<FColor*>(RawImageData->Lock(LOCK_READ_ONLY));
+	uint8 PixelX = 5, PixelY = 10;
+	uint32 TextureWidth = MyMipMap->SizeX, TextureHeight = MyMipMap->SizeY;
+	FColor PixelColor;
+
+	if (PixelX >= 0 && PixelX < TextureWidth && PixelY >= 0 && PixelY < TextureHeight)
+	{
+		PixelColor = FormatedImageData[PixelY * TextureWidth + PixelX];
+	}*/
+
+	FColor* FormatedImageData = static_cast<FColor*>(imageTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_ONLY));
+	imageTexture->PlatformData->Mips[0].BulkData.Unlock();
+	UE_LOG(LogTemp, Warning, TEXT("R:%f G:%f B:%f"), FormatedImageData->R, FormatedImageData->G, FormatedImageData->B);
 }
 
 void FEditorWindowModule::SpawnActor()
@@ -201,7 +246,23 @@ UTexture2D* FEditorWindowModule::LoadTextureFromPath(const FString& Path)
 
 	return Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *(Path)));
 }
-
+IImageWrapperPtr FEditorWindowModule::CreateImageWrapper(IImageWrapperModule& ImageWrapperModule, const FString& Path)
+{
+	
+	if ((Path.Contains(TEXT(".jpg")), ESearchCase::IgnoreCase) || (Path.Contains(TEXT(".jpeg")), ESearchCase::IgnoreCase))
+	{
+		return ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
+	}
+	if (Path.Contains(TEXT(".png")), ESearchCase::IgnoreCase)
+	{
+		return ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+	}
+	if (Path.Contains(TEXT(".bmp")), ESearchCase::IgnoreCase)
+	{
+		return ImageWrapperModule.CreateImageWrapper(EImageFormat::BMP);
+	}
+	return ImageWrapperModule.CreateImageWrapper(EImageFormat::Invalid);
+}
 
 
 

@@ -10,7 +10,7 @@ AMyActor::AMyActor()
 	PrimaryActorTick.bCanEverTick = true;
 	
 
-	//create root component
+	//Create root component
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
 
 	RootComponent = Root;
@@ -19,7 +19,7 @@ AMyActor::AMyActor()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->AttachTo(Root);
 
-	//assign cylinder to static mesh asset
+	//Assign cylinder to static mesh asset
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	UStaticMesh* Asset = MeshAsset.Object;
 	Mesh->SetMobility(EComponentMobility::Movable);
@@ -33,14 +33,14 @@ AMyActor::AMyActor()
 void AMyActor::BeginPlay()
 {
 	Super::BeginPlay();
-	this->SetActorScale3D(this->scale);
+	
 }
 
 //Works
 void AMyActor::Spawn(FVector SpawnLocation, FRotator SpawnRotation)
 {
 	
-	
+	//create game world, and spawn actor at location
 	UE_LOG(LogTemp, Warning, TEXT("when spawning scale = %f %f %f"), this->GetActorScale3D().X, this->GetActorScale3D().Y, this->GetActorScale3D().Z);
 	UWorld* const World = GWorld->GetWorld();
 	if (World)

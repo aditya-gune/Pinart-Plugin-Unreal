@@ -151,16 +151,16 @@ void FEditorWindowModule::GetNameFromTextInput(const FText & Text) {
 int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 {
 	UE_LOG(LogTemp, Warning, TEXT("in LoadImageFromPath"));
-	// Represents the entire file in memory.
+	//Memory buffer for reading the file
 	TArray<uint8> RawFileData;
 
 	if (FFileHelper::LoadFileToArray(RawFileData, *Path))
 	{
+		//Imagewrappermodule to read file into memory
 		UE_LOG(LogTemp, Warning, TEXT("LoadFileToArray OK"));
 		IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-		
-		
 		IImageWrapperPtr ImageWrapper = CreateImageWrapper(ImageWrapperModule, Path);
+		
 		if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ImageWrapper is valid"));
@@ -177,27 +177,26 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 				FMemory::Memcpy(TextureData, ImageRGBA->GetData(), ImageRGBA->Num());
 				ImageTexture->PlatformData->Mips[0].BulkData.Unlock();
 
-				// Update the rendering resource from data.
+				//Update rendering resource, member variable
 				ImageTexture->UpdateResource();
 				imageTexture = ImageTexture;
 
+				//Get heightmap in form of RGBA
 				UE_LOG(LogTemp, Warning, TEXT("getting height map"));
 				FTexture2DMipMap* MipMap = &ImageTexture->PlatformData->Mips[0];
 
-				UE_LOG(LogTemp, Warning, TEXT("MipMap: %s"), MipMap);
-
+				//Get raw image data as bytes
 				FByteBulkData* RawImageData = &MipMap->BulkData;
 				UE_LOG(LogTemp, Warning, TEXT("RawImageData: %s"), RawImageData);
 
+				//Get image data vector from raw bytes
 				FColor* ImageDataVector = (FColor*)(RawImageData->Lock(LOCK_READ_ONLY));
 				UE_LOG(LogTemp, Warning, TEXT("RGB:%u"), (uint8)ImageDataVector->R);
 
-				int32 PixelX = 1;
-				int32 PixelY = 1;
+				//set max width and height
 				int32 TextureWidth = MipMap->SizeX;
 				int32 TextureHeight = MipMap->SizeY;
 				FColor PixelColor;
-				UE_LOG(LogTemp, Warning, TEXT("(X: %d, Y: %d)"), PixelX, PixelY);
 				UE_LOG(LogTemp, Warning, TEXT("(max X: %d, max Y: %d)"), TextureWidth, TextureHeight);
 
 				std::vector<std::vector<uint32>> tempHeights;
@@ -207,15 +206,20 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 					t.clear();
 					for (int32 j = 0; j < TextureHeight; j++)
 					{
-
+						//for every pixel in the image, iterate through and get the RGBA
 						PixelColor.R = (uint8)ImageDataVector[j * TextureWidth + i].R;
 						PixelColor.G = (uint8)ImageDataVector[j * TextureWidth + i].G;
 						PixelColor.B = (uint8)ImageDataVector[j * TextureWidth + i].B;
 						PixelColor.A = (uint8)ImageDataVector[j * TextureWidth + i].A;
 						t.push_back(PixelColor.R + PixelColor.G + PixelColor.B);
 						UE_LOG(LogTemp, Warning, TEXT("(%d, %d) | R:%u G:%u B:%u"), i, j, PixelColor.R, PixelColor.G, PixelColor.B);
+
+						//set the pin height = to R+G+B
 						float z = (float)PixelColor.R + (float)PixelColor.G + (float)PixelColor.B;
 						FVector loc;
+
+						//set the pin location = to the pixel's position in the image
+						//and its z to displace by half its height (so its bottom is at z = 0)
 						loc.X = float(i) * 100;
 						loc.Y = float(j) * 100;
 						loc.Z = z/2;
@@ -255,12 +259,13 @@ void FEditorWindowModule::SpawnActor(FVector SpawnLocation, FVector scale)
 {
 	FActorSpawnParameters SpawnParams;
 
-	//Set a rotation
+	//Set a rotation of zero
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
-	//Spawn the actor 
+	//Spawn the actor - using BeginSpawningActorFromClass instead of NewObject
+	//because we need to pass in the pin's scale before the constructor call ends
 	FTransform SpawnTM(SpawnRotation, SpawnLocation, scale);
-	AMyActor *pin = Cast<AMyActor>(UGameplayStatics::BeginSpawningActorFromClass(GWorld, AMyActor::StaticClass(), SpawnTM));//NewObject<AMyActor>(AMyActor::StaticClass());
+	AMyActor *pin = Cast<AMyActor>(UGameplayStatics::BeginSpawningActorFromClass(GWorld, AMyActor::StaticClass(), SpawnTM));
 	if (pin)
 	{
 		UGameplayStatics::FinishSpawningActor(pin, SpawnTM);

@@ -17,6 +17,7 @@ public:
 	// Sets default values for this actor's properties
 	AMyActor();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,14 +25,16 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
+	virtual void PostInitializeComponents() override;
+	
 	UPROPERTY()
 		USceneComponent *Root;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent *Mesh;
 
-	float x, y, z;		//xyz of the pin
+	FVector scale;		//scale of the pin
 
 	/*
 	* generateXY gets the pixel position and returns the XY of the cylinder
@@ -47,7 +50,8 @@ public:
 	
 	void Spawn(FVector SpawnLocation, FRotator SpawnRotation);
 
+	void SetScale(FVector scale);
 
 	AActor * SpawnWrapper(FVector SpawnLocation, FRotator SpawnRotation);
-
+	
 };

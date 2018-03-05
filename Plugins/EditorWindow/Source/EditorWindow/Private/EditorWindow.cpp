@@ -164,38 +164,38 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 		if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ImageWrapper is valid"));
-			const TArray<uint8>* UncompressedBGRA = NULL;
-			if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
+			const TArray<uint8>* ImageRGBA = NULL;
+			if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, ImageRGBA))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("can GetRaw"));
 
-				// Create the UTexture for rendering
-				UTexture2D* MyTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
+				//Create UTexture2D from the file
+				UTexture2D* ImageTexture = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
 
-				// Fill in the source data from the file
-				void* TextureData = MyTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-				FMemory::Memcpy(TextureData, UncompressedBGRA->GetData(), UncompressedBGRA->Num());
-				MyTexture->PlatformData->Mips[0].BulkData.Unlock();
+				//Fill in image data from the file
+				void* TextureData = ImageTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+				FMemory::Memcpy(TextureData, ImageRGBA->GetData(), ImageRGBA->Num());
+				ImageTexture->PlatformData->Mips[0].BulkData.Unlock();
 
 				// Update the rendering resource from data.
-				MyTexture->UpdateResource();
-				imageTexture = MyTexture;
+				ImageTexture->UpdateResource();
+				imageTexture = ImageTexture;
 
 				UE_LOG(LogTemp, Warning, TEXT("getting height map"));
-				FTexture2DMipMap* MyMipMap = &MyTexture->PlatformData->Mips[0];
+				FTexture2DMipMap* MipMap = &ImageTexture->PlatformData->Mips[0];
 
-				UE_LOG(LogTemp, Warning, TEXT("MipMap: %s"), MyMipMap);
+				UE_LOG(LogTemp, Warning, TEXT("MipMap: %s"), MipMap);
 
-				FByteBulkData* RawImageData = &MyMipMap->BulkData;
+				FByteBulkData* RawImageData = &MipMap->BulkData;
 				UE_LOG(LogTemp, Warning, TEXT("RawImageData: %s"), RawImageData);
 
-				FColor* FormatedImageData = (FColor*)(RawImageData->Lock(LOCK_READ_ONLY));
-				UE_LOG(LogTemp, Warning, TEXT("RGB:%u"), (uint8)FormatedImageData->R);
+				FColor* ImageDataVector = (FColor*)(RawImageData->Lock(LOCK_READ_ONLY));
+				UE_LOG(LogTemp, Warning, TEXT("RGB:%u"), (uint8)ImageDataVector->R);
 
 				int32 PixelX = 1;
 				int32 PixelY = 1;
-				int32 TextureWidth = MyMipMap->SizeX;
-				int32 TextureHeight = MyMipMap->SizeY;
+				int32 TextureWidth = MipMap->SizeX;
+				int32 TextureHeight = MipMap->SizeY;
 				FColor PixelColor;
 				UE_LOG(LogTemp, Warning, TEXT("(X: %d, Y: %d)"), PixelX, PixelY);
 				UE_LOG(LogTemp, Warning, TEXT("(max X: %d, max Y: %d)"), TextureWidth, TextureHeight);
@@ -208,19 +208,24 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 					for (int32 j = 0; j < TextureHeight; j++)
 					{
 
-						PixelColor.R = (uint8)FormatedImageData[j * TextureWidth + i].R;
-						PixelColor.G = (uint8)FormatedImageData[j * TextureWidth + i].G;
-						PixelColor.B = (uint8)FormatedImageData[j * TextureWidth + i].B;
-						PixelColor.A = (uint8)FormatedImageData[j * TextureWidth + i].A;
+						PixelColor.R = (uint8)ImageDataVector[j * TextureWidth + i].R;
+						PixelColor.G = (uint8)ImageDataVector[j * TextureWidth + i].G;
+						PixelColor.B = (uint8)ImageDataVector[j * TextureWidth + i].B;
+						PixelColor.A = (uint8)ImageDataVector[j * TextureWidth + i].A;
 						t.push_back(PixelColor.R + PixelColor.G + PixelColor.B);
 						UE_LOG(LogTemp, Warning, TEXT("(%d, %d) | R:%u G:%u B:%u"), i, j, PixelColor.R, PixelColor.G, PixelColor.B);
+						float z = (float)PixelColor.R + (float)PixelColor.G + (float)PixelColor.B;
+						FVector loc;
+						loc.X = float(i) * 100;
+						loc.Y = float(j) * 100;
+						loc.Z = z/2;
+						UE_LOG(LogTemp, Warning, TEXT("z = %f"), z);
+						SpawnActor(loc, FVector(1., 1., (z/100)));
 					}
 					tempHeights.push_back(t);
 					
 				}
-				
-				SpawnActor();
-			
+
 			}
 			else
 			{
@@ -246,26 +251,21 @@ int FEditorWindowModule::LoadImageFromPath(const FString& Path)
 	return 0;
 }
 
-void FEditorWindowModule::GetHeightMap()
-{
-	
-
-}
-
-void FEditorWindowModule::SpawnActor()
+void FEditorWindowModule::SpawnActor(FVector SpawnLocation, FVector scale)
 {
 	FActorSpawnParameters SpawnParams;
-
-	// Get Actor Location to Spawn
-	FVector SpawnLocation = FVector(0.0f, 0.0f, 0.0f);
 
 	//Set a rotation
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	//Spawn the actor 
-	AMyActor* pin = NewObject<AMyActor>(AMyActor::StaticClass());
+	FTransform SpawnTM(SpawnRotation, SpawnLocation, scale);
+	AMyActor *pin = Cast<AMyActor>(UGameplayStatics::BeginSpawningActorFromClass(GWorld, AMyActor::StaticClass(), SpawnTM));//NewObject<AMyActor>(AMyActor::StaticClass());
+	if (pin)
+	{
+		UGameplayStatics::FinishSpawningActor(pin, SpawnTM);
+	}
 	pin->Spawn(SpawnLocation, SpawnRotation);
-	
 
 }
 

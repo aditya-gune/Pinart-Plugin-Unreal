@@ -37,7 +37,7 @@ private:
 	void GetNameFromTextInput(const FText & Text);
 	int LoadImageFromPath(const FString & Path);
 	void GetHeightMap();
-	void SpawnActor();
+	void SpawnActor(FVector SpawnLocation, FVector scale);
 	IImageWrapperPtr CreateImageWrapper(IImageWrapperModule& ImageWrapperModule, const FString& Path);
 
 	UTexture2D * LoadTextureFromPath(const FString & Path);
@@ -45,12 +45,12 @@ private:
 
 	FString Value;	//holds string values from window input
 	UTexture2D* imageTexture;	//holds texture2D
+	
+	UPROPERTY(EditAnywhere, Category = "Globals")
+	static FVector scale;
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
-
-	FVector2D heights;
-
-	FReply TestButtonFunction();
+	
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;

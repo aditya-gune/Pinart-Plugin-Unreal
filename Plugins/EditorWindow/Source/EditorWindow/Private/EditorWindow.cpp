@@ -86,29 +86,29 @@ TSharedRef<SDockTab> FEditorWindowModule::OnSpawnPluginTab(const FSpawnTabArgs& 
 						.OnTextChanged_Raw(this, &FEditorWindowModule::GetNameFromTextInput)
 					]
 				]
-		+ SVerticalBox::Slot().HAlign(HAlign_Fill)
+		/*+ SVerticalBox::Slot().HAlign(HAlign_Fill)
 			[
 				
 				SNew(SBox)
 				[
-					/*SNew(STextBlock)
-					.Text(FText::FromString(TEXT("Image File")))*/
+					//SNew(STextBlock)
+					//.Text(FText::FromString(TEXT("Image File")))
 					SNew(SEditableTextBox)
 					.OnTextChanged_Raw(this, &FEditorWindowModule::GetNameFromTextInput)
 				]
-			]
-		+ SVerticalBox::Slot().HAlign(HAlign_Fill)
+			]*/
+		/*+ SVerticalBox::Slot().HAlign(HAlign_Fill)
 			[
 				
 				SNew(SBox)
 				[
-					/*SNew(STextBlock)
-					.Text(FText::FromString(TEXT("Size")))*/
+					//SNew(STextBlock)
+					//.Text(FText::FromString(TEXT("Size")))
 					SNew(SEditableTextBox)
 					.OnTextChanged_Raw(this, &FEditorWindowModule::GetNameFromTextInput)
 
 				]
-			]	
+			]*/	
 
 		]
 		
